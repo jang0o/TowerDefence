@@ -2,75 +2,55 @@ using UnityEngine;
 
 public class BaseEnemy : MonoBehaviour
 {
-    public enum EnemyType { Tank, Destroyer } // Танк идет к 14, Разрушитель бьет всё
+    public UnitStats stats; // Теперь ошибка CS1061 исчезнет, так как в stats есть damage
 
-    [Header("Тип поведения")]
-    public EnemyType behavior;
+    private Waypoints targetPath;
+    private Transform targetPoint;
+    private int pointIndex = 0;
 
-    [Header("Характеристики")]
-    public UnitStats stats;
-    public float attackCooldown = 1f;
-
-    private Transform targetBuilding;
-    private float nextAttackTime;
-    private bool isAttacking = false;
+    public void SetupPath(Waypoints path)
+    {
+        targetPath = path;
+        pointIndex = 0;
+        if (targetPath.points.Length > 0)
+            targetPoint = targetPath.points[0];
+    }
 
     void Update()
     {
-        if (isAttacking)
-        {
-            if (targetBuilding == null)
-            {
-                isAttacking = false;
-                return;
-            }
+        if (targetPoint == null) return;
 
-            // Логика удара (ближний бой)
-            if (Time.time >= nextAttackTime)
-            {
-                Attack(targetBuilding);
-                nextAttackTime = Time.time + attackCooldown;
-            }
-            return; // Если атакуем, то не идем дальше
+        // ДВИЖЕНИЕ В 3D (по X и Z)
+        Vector3 targetPos = new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z);
+        Vector3 direction = targetPos - transform.position;
+
+        transform.Translate(direction.normalized * stats.speed * Time.deltaTime, Space.World);
+
+        // ПОВОРОТ
+        if (direction != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
         }
 
-        if (behavior == EnemyType.Destroyer)
+        // ПРОВЕРКА ДИСТАНЦИИ
+        if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                             new Vector3(targetPos.x, 0, targetPos.z)) < 0.2f)
         {
-            CheckForBuildings();
-        }
-
-        MoveTowardsMainBase();
-    }
-
-    void CheckForBuildings()
-    {
-        // Поиск ближайшего здания в небольшом радиусе перед собой
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f); // Радиус агрессии
-        foreach (var hit in hitColliders)
-        {
-            if (hit.CompareTag("Building")) // Зданиям (корпусам) нужно дать тег Building
-            {
-                targetBuilding = hit.transform;
-                isAttacking = true;
-                break;
-            }
+            GetNextPoint();
         }
     }
 
-    void MoveTowardsMainBase()
+    void GetNextPoint()
     {
-        // Здесь твоя логика движения по Waypoints (точкам)
-        // Если это Танк, он просто игнорирует CheckForBuildings и всегда выполняет этот метод
-    }
-
-    void Attack(Transform building)
-    {
-        // Наносим урон зданию
-        BaseEntity b = building.GetComponent<BaseEntity>();
-        if (b != null)
+        if (pointIndex >= targetPath.points.Length - 1)
         {
-            b.TakeDamage(stats.damage);
-            Debug.Log(gameObject.name + " ударил здание!");
+            // Здесь используем тот самый stats.damage, который вызывал ошибку
+            Debug.Log("Нанесено урона корпусу: " + stats.damage);
+            Destroy(gameObject);
+            return;
         }
+        pointIndex++;
+        targetPoint = targetPath.points[pointIndex];
     }
 }
