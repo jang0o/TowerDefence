@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BaseEnemy : MonoBehaviour
 {
-    public UnitStats stats; // Теперь ошибка CS1061 исчезнет, так как в stats есть damage
+    public UnitStats stats;
 
     private Waypoints targetPath;
     private Transform targetPoint;
@@ -16,24 +16,34 @@ public class BaseEnemy : MonoBehaviour
             targetPoint = targetPath.points[0];
     }
 
+    void Start()
+    {
+        // 1. Proveryaem stats
+        if (stats == null)
+        {
+            stats = new UnitStats();
+            Debug.Log("Stats bily pustie, sozdal de-fultnie dlya " + gameObject.name);
+        }
+    } // VOT ETOY SKOBKI NE HVATALO!
+
     void Update()
     {
-        if (targetPoint == null) return;
+        if (targetPoint == null || stats == null) return;
 
-        // ДВИЖЕНИЕ В 3D (по X и Z)
+        // Dvizhenie k tochke
         Vector3 targetPos = new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z);
         Vector3 direction = targetPos - transform.position;
 
         transform.Translate(direction.normalized * stats.speed * Time.deltaTime, Space.World);
 
-        // ПОВОРОТ
+        // Povorot
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
         }
 
-        // ПРОВЕРКА ДИСТАНЦИИ
+        // Proverka distancii
         if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
                              new Vector3(targetPos.x, 0, targetPos.z)) < 0.2f)
         {
@@ -43,14 +53,31 @@ public class BaseEnemy : MonoBehaviour
 
     void GetNextPoint()
     {
-        if (pointIndex >= targetPath.points.Length - 1)
+        if (targetPath == null || pointIndex >= targetPath.points.Length - 1)
         {
-            // Здесь используем тот самый stats.damage, который вызывал ошибку
-            Debug.Log("Нанесено урона корпусу: " + stats.damage);
+            Debug.Log("Vrag doshel do konca. Uron baze: " + stats.damage);
             Destroy(gameObject);
             return;
         }
         pointIndex++;
         targetPoint = targetPath.points[pointIndex];
+    }
+
+    public void TakeDamage(float amount)
+    {
+        if (stats == null) return;
+
+        stats.health -= amount;
+        Debug.Log("U vraga ostalos HP: " + stats.health);
+
+        if (stats.health <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Destroy(gameObject);
     }
 }
