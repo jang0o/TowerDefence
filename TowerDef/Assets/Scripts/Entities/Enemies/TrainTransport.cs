@@ -3,10 +3,10 @@ using System.Collections;
 
 public class TrainTransport : MonoBehaviour
 {
-    public UnitStats trainStats;    // Скорость самого поезда
-    public GameObject enemyPrefab;  // Кто выйдет из поезда
-    public int enemyCount = 5;      // Сколько врагов выйдет
-    public float spawnDelay = 0.3f; // Скорость высадки
+    public UnitStats trainStats;    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    public GameObject enemyPrefab;  // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    public int enemyCount = 5;      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    public float spawnDelay = 0.3f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     private Waypoints targetPath;
     private Transform targetPoint;
@@ -24,7 +24,7 @@ public class TrainTransport : MonoBehaviour
     {
         if (targetPoint == null) return;
 
-        // Движение поезда
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         Vector3 direction = targetPoint.position - transform.position;
         transform.Translate(direction.normalized * trainStats.speed * Time.deltaTime, Space.World);
 
@@ -38,7 +38,7 @@ public class TrainTransport : MonoBehaviour
     {
         if (pointIndex >= targetPath.points.Length - 1)
         {
-            StartCoroutine(UnloadEnemies()); // Приехали! Высадка.
+            StartCoroutine(UnloadEnemies()); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ! пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
             targetPoint = null;
             return;
         }
@@ -48,14 +48,14 @@ public class TrainTransport : MonoBehaviour
 
     IEnumerator UnloadEnemies()
     {
-        Debug.Log("Поезд прибыл! Высадка врагов...");
+        Debug.Log("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ! пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ...");
         for (int i = 0; i < enemyCount; i++)
         {
             GameObject enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
-            enemy.GetComponent<BaseEnemy>().SetupPath(targetPath); // Враги тоже идут по пути
+            enemy.GetComponent<BaseEnemy>().SetupPath(targetPath); // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
             yield return new WaitForSeconds(spawnDelay);
         }
 
-        Destroy(gameObject); // Поезд исчезает после высадки
+        Destroy(gameObject); // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
 }

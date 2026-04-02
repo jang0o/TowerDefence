@@ -1,15 +1,15 @@
-using UnityEngine; // ВОТ ЭТОЙ СТРОЧКИ У ТЕБЯ НЕ ХВАТАЛО!
+using UnityEngine; // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!
 
 public class TrainSpawner : MonoBehaviour
 {
-    public GameObject trainPrefab; // Префаб вагона
-    public GameObject enemyInTrainPrefab; // Префаб врага-кубика
+    public GameObject trainPrefab; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    public GameObject enemyInTrainPrefab; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ
     public Waypoints pathToFollow;
     public float spawnRate = 20f;
 
     void Start()
     {
-        // Запускаем спавн поезда через 2 секунды после старта, повторяем каждые spawnRate секунд
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 2 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ spawnRate пїЅпїЅпїЅпїЅпїЅпїЅ
         InvokeRepeating("SpawnTrain", 2f, spawnRate);
     }
 
@@ -23,8 +23,8 @@ public class TrainSpawner : MonoBehaviour
 
         GameObject train = Instantiate(trainPrefab, transform.position, Quaternion.identity);
 
-        // ВАЖНО: Если ты переименовал скрипт поезда в "Train", 
-        // то замени TrainTransport на Train в строчке ниже:
+        // пїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ "Train", 
+        // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ TrainTransport пїЅпїЅ Train пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ:
         Train trainScript = train.GetComponent<Train>();
 
         if (trainScript != null)
