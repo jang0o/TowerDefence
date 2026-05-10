@@ -3,31 +3,29 @@ using UnityEngine.InputSystem;
 
 public class UniversalCameraController : MonoBehaviour
 {
-    [Header("��������� ��������")]
+    [Header("Movement Settings")]
     public float dragSpeed = 0.5f;
     public float smoothSpeed = 10f;
 
-    [Header("��������� ����")]
+    [Header("Zoom Settings")]
     public bool enableZoom = true;
     public float zoomSpeed = 0.05f;
     public float minZoom = 5f;
     public float maxZoom = 15f;
 
-    [Header("������� �����")]
+    [Header("Map Bounds (XZ)")]
     public bool useBounds = true;
-    public float minX = -10f;
-    public float maxX = 10f;
-    public float minY = -10f;
-    public float maxY = 10f;
+    public float minX = -8f;
+    public float maxX = 8f;
+    public float minZ = -10f;
+    public float maxZ = 15f;
 
     private Camera cam;
     private Vector3 targetPosition;
     private Vector2 lastTouchPosition;
     private bool isDragging = false;
 
-    // ��� ����
     private Mouse mouse;
-    // ��� �������
     private Touchscreen touch;
 
     void Start()
@@ -38,60 +36,51 @@ public class UniversalCameraController : MonoBehaviour
 
         targetPosition = transform.position;
 
-        // �������� ���������� �����
         mouse = Mouse.current;
         touch = Touchscreen.current;
     }
 
     void Update()
     {
-        // ���������, ���� �� ������� (�������)
         if (touch != null && touch.touches.Count > 0)
         {
             HandleTouchInput();
         }
-        // ���� ��� �������, ��������� ���� (��)
         else if (mouse != null)
         {
             HandleMouseInput();
         }
 
-        // ������ ������� ������
         transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
 
-        // ������������ �������
         if (useBounds)
         {
             float clampedX = Mathf.Clamp(transform.position.x, minX, maxX);
-            float clampedY = Mathf.Clamp(transform.position.y, minY, maxY);
-            transform.position = new Vector3(clampedX, clampedY, transform.position.z);
-            targetPosition = transform.position;
+            float clampedZ = Mathf.Clamp(transform.position.z, minZ, maxZ);
+            transform.position = new Vector3(clampedX, transform.position.y, clampedZ);
+            targetPosition = new Vector3(clampedX, targetPosition.y, clampedZ);
         }
     }
 
     void HandleMouseInput()
     {
-        // ������ ����� ������ ����
         if (mouse.leftButton.wasPressedThisFrame)
         {
             lastTouchPosition = mouse.position.ReadValue();
             isDragging = true;
         }
 
-        // ������ ����� ������
         if (mouse.leftButton.isPressed && isDragging)
         {
             Vector2 currentMousePos = mouse.position.ReadValue();
             DragCamera(currentMousePos);
         }
 
-        // ��������� ������
         if (mouse.leftButton.wasReleasedThisFrame)
         {
             isDragging = false;
         }
 
-        // ��� ���������
         if (enableZoom)
         {
             float scrollDelta = mouse.scroll.ReadValue().y;
@@ -107,7 +96,6 @@ public class UniversalCameraController : MonoBehaviour
     {
         if (touch == null) return;
 
-        // ���� ������� - ��������
         if (touch.touches.Count == 1)
         {
             UnityEngine.InputSystem.Controls.TouchControl touchControl = touch.touches[0];
@@ -128,7 +116,6 @@ public class UniversalCameraController : MonoBehaviour
                 isDragging = false;
             }
         }
-        // ��� ������� - ���
         else if (touch.touches.Count == 2 && enableZoom)
         {
             var touch1 = touch.touches[0];
@@ -149,25 +136,22 @@ public class UniversalCameraController : MonoBehaviour
 
     void DragCamera(Vector2 currentPosition)
     {
-        // ������������ �������� ���������� � �������
         Vector3 worldCurrent = cam.ScreenToWorldPoint(currentPosition);
         Vector3 worldLast = cam.ScreenToWorldPoint(lastTouchPosition);
 
-        // ������� ������ � ��������������� �������
         Vector3 delta = worldLast - worldCurrent;
         targetPosition += delta * dragSpeed;
 
         lastTouchPosition = currentPosition;
     }
 
-    // ������������ ������ � ���������
     void OnDrawGizmosSelected()
     {
         if (useBounds)
         {
             Gizmos.color = Color.yellow;
-            Vector3 center = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, 0);
-            Vector3 size = new Vector3(maxX - minX, maxY - minY, 0);
+            Vector3 center = new Vector3((minX + maxX) / 2, transform.position.y, (minZ + maxZ) / 2);
+            Vector3 size = new Vector3(maxX - minX, 1, maxZ - minZ);
             Gizmos.DrawWireCube(center, size);
         }
     }

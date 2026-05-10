@@ -1,0 +1,23 @@
+{
+    "asset": "262a3b2915e239549b20249be1c4cbf0",
+    "fileName": "019e119f-2866-7a20-9ec2-e05be00e7564.glb",
+    "prompt": "Stylized low poly russian railway carriage car, blue and grey.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "6739dbaac8a9e464ba51017158a6d17a",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}

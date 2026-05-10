@@ -1,0 +1,23 @@
+{
+    "asset": "f502b44bb5910624f9da64d609578942",
+    "fileName": "019e119f-2d93-7d4b-b6e8-bbabdb72fa37.glb",
+    "prompt": "Stylized low poly sci-fi cannon turret, white and blue.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "e8d323ed222ecb844969acd36e1407b8",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}

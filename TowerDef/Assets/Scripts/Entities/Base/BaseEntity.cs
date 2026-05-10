@@ -20,9 +20,13 @@ public class BaseEntity : MonoBehaviour
             // Тут будет начисление валюты
         }
 
-        if (gameObject.name == "Building_14")
+        if (gameObject.name == "14k+7k")
         {
             Debug.Log("ГЛАВНЫЙ КОРПУС ПАЛ! ГЕЙМ ОВЕР");
+            if (MenuManager.Instance != null)
+            {
+                MenuManager.Instance.TriggerGameOver();
+            }
         }
 
         Destroy(gameObject);

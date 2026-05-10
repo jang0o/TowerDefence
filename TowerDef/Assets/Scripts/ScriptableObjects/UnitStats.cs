@@ -15,4 +15,5 @@ public class UnitStats : ScriptableObject
     public float range = 15f;      // Radius ataki
     public float fireRate = 1f;    // Skorost' strel'by
     public float damage = 20f;     // Uron odnoy puli
-}
+    public int cost = 100;         // Stoimost' bashni
+    }

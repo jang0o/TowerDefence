@@ -2,19 +2,29 @@ using UnityEngine;
 
 public class BaseEnemy : BaseEntity
 {
-    [Header("��������� �� ScriptableObject")]
+    [Header("Stats from ScriptableObject")]
     public UnitStats stats;
 
-    [Header("��������� �����")]
-    public float attackRange = 1.0f; // ���������, �� ������� �� ������ ���� ������
-    public float attackCooldown = 1.5f; // ����� ����� ������� (� ��������)
+    [Header("Attack Settings")]
+    public float attackRange = 0.5f; // Melee range
+    public float attackCooldown = 1.5f;
 
-    private Waypoints targetPath;
-    private Transform targetPoint;
-    private int pointIndex = 0;
+    protected override void Die()
+    {
+        if (stats != null)
+        {
+            CurrencyManager.AddMoney(stats.reward);
+            Debug.Log("Enemy killed! Reward: " + stats.reward);
+        }
+        base.Die();
+    }
 
-    private float lastAttackTime;
-    private BaseEntity currentTarget; // ������� ������, ������� �� ����
+    protected Waypoints targetPath;
+    protected Transform targetPoint;
+    protected int pointIndex = 0;
+
+    protected float lastAttackTime;
+    protected BaseEntity currentTarget;
 
     public void SetupPath(Waypoints path)
     {
@@ -24,7 +34,7 @@ public class BaseEnemy : BaseEntity
             targetPoint = targetPath.points[0];
     }
 
-    void Start()
+    protected virtual void Start()
     {
         if (stats != null)
         {
@@ -33,29 +43,29 @@ public class BaseEnemy : BaseEntity
         }
     }
 
-    void Update()
+    protected virtual void Update()
     {
-        // 1. ���������, ��� �� ������ ����� ����
+        // 1. Look for buildings to attack nearby (stops to break buildings on the way)
         CheckForBuildings();
 
-        // 2. ���� �� ����-�� ���� � �� ���������
+        // 2. If we have a target (building), attack it and don't move
         if (currentTarget != null)
         {
             AttackTarget();
             return;
         }
 
-        // 3. ���� ���� ��� � ���������� ����
+        // 3. Otherwise move towards the next waypoint
         Move();
     }
 
-    void CheckForBuildings()
+    protected void CheckForBuildings()
     {
-        // ���� ���������� � ��������� ������� ����� �����
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange);
+        // Use attackRange to see if we can hit something right now
+        // We could use a slightly larger range for 'detection' if we wanted them to deviate from path
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange + 0.1f);
         foreach (var hit in hitColliders)
         {
-            // ���� ����� ������ � ����� Building � �� ��� ���� ������ BaseEntity
             if (hit.CompareTag("Building"))
             {
                 BaseEntity building = hit.GetComponent<BaseEntity>();
@@ -68,30 +78,36 @@ public class BaseEnemy : BaseEntity
         }
     }
 
-    void AttackTarget()
+    protected virtual void AttackTarget()
     {
-        // ���� ������ ��� ��������� � ���������� ���� � ���� ������
         if (currentTarget == null || currentTarget.health <= 0)
         {
             currentTarget = null;
             return;
         }
 
-        // ������ �����
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             currentTarget.TakeDamage(stats.damage);
             lastAttackTime = Time.time;
-            Debug.Log(gameObject.name + " ������ ������! ����: " + stats.damage);
+            Debug.Log(gameObject.name + " is breaking " + currentTarget.gameObject.name + "! Damage: " + stats.damage);
         }
     }
 
-    void Move()
+    protected void Move()
     {
         if (targetPoint == null || stats == null) return;
 
         Vector3 targetPos = new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z);
         Vector3 direction = targetPos - transform.position;
+        
+        // If we reached the waypoint
+        if (direction.magnitude < 0.3f)
+        {
+            GetNextPoint();
+            return;
+        }
+
         transform.Translate(direction.normalized * stats.speed * Time.deltaTime, Space.World);
 
         if (direction != Vector3.zero)
@@ -99,15 +115,9 @@ public class BaseEnemy : BaseEntity
             Quaternion lookRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
         }
-
-        if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                             new Vector3(targetPos.x, 0, targetPos.z)) < 0.2f)
-        {
-            GetNextPoint();
-        }
     }
 
-    void GetNextPoint()
+    protected void GetNextPoint()
     {
         if (targetPath == null || pointIndex >= targetPath.points.Length - 1)
         {
@@ -118,14 +128,23 @@ public class BaseEnemy : BaseEntity
         targetPoint = targetPath.points[pointIndex];
     }
 
-    void ReachEnd()
+    protected void ReachEnd()
     {
-        // ������ ����� ���������� 14-�� �������
-        GameObject mainBuilding = GameObject.Find("Building_14");
+        // Instead of disappearing, find the 14k+7k building and set it as target
+        GameObject mainBuilding = GameObject.Find("14k+7k");
         if (mainBuilding != null)
         {
-            mainBuilding.GetComponent<BaseEntity>().TakeDamage(stats.damage);
+            BaseEntity entity = mainBuilding.GetComponent<BaseEntity>();
+            if (entity != null && entity.health > 0)
+            {
+                currentTarget = entity;
+                targetPoint = null; // Stop moving towards points
+                Debug.Log(gameObject.name + " reached the final target and is attacking!");
+                return;
+            }
         }
-        Destroy(gameObject);
+        
+        // Fallback: if target is gone, just stay there or destroy if it's been too long
+        // Destroy(gameObject); // Don't destroy if we want them to stay
     }
 }

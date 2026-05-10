@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitStats
   objectName: 
   health: 100
-  speed: 3
+  speed: 2
   reward: 50
-  range: 100
+  range: 8
   fireRate: 1.5
-  damage: 20
+  damage: 10
+  cost: 250

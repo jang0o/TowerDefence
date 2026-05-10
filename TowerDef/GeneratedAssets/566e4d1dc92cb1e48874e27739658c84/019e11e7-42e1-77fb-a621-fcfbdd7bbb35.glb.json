@@ -1,0 +1,23 @@
+{
+    "asset": "566e4d1dc92cb1e48874e27739658c84",
+    "fileName": "019e11e7-42e1-77fb-a621-fcfbdd7bbb35.glb",
+    "prompt": "Stylized low poly train carriage, blue and grey, matching the reference style.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "0a67dab9e30ffd34fac7861a070e2698",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}
