@@ -1,55 +1,52 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using ETouch = UnityEngine.InputSystem.EnhancedTouch;
 
 public class UniversalCameraController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float dragSpeed = 0.5f;
+    public float dragSpeed = 1.0f;
     public float smoothSpeed = 10f;
 
     [Header("Zoom Settings")]
     public bool enableZoom = true;
-    public float zoomSpeed = 0.05f;
-    public float minZoom = 5f;
+    public float zoomSpeed = 0.01f;
+    public float minZoom = 3f;
     public float maxZoom = 15f;
 
     [Header("Map Bounds (XZ)")]
     public bool useBounds = true;
-    public float minX = -8f;
-    public float maxX = 8f;
-    public float minZ = -10f;
-    public float maxZ = 15f;
+    public float minX = -12f;
+    public float maxX = 12f;
+    public float minZ = -15f;
+    public float maxZ = 25f;
 
     private Camera cam;
     private Vector3 targetPosition;
-    private Vector2 lastTouchPosition;
     private bool isDragging = false;
+    private Vector2 lastInputPosition;
 
-    private Mouse mouse;
-    private Touchscreen touch;
+    void OnEnable()
+    {
+        EnhancedTouchSupport.Enable();
+    }
+
+    void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
+    }
 
     void Start()
     {
         cam = GetComponent<Camera>();
-        if (cam == null)
-            cam = Camera.main;
-
+        if (cam == null) cam = Camera.main;
         targetPosition = transform.position;
-
-        mouse = Mouse.current;
-        touch = Touchscreen.current;
     }
 
     void Update()
     {
-        if (touch != null && touch.touches.Count > 0)
-        {
-            HandleTouchInput();
-        }
-        else if (mouse != null)
-        {
-            HandleMouseInput();
-        }
+        HandleInput();
 
         transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
 
@@ -58,101 +55,99 @@ public class UniversalCameraController : MonoBehaviour
             float clampedX = Mathf.Clamp(transform.position.x, minX, maxX);
             float clampedZ = Mathf.Clamp(transform.position.z, minZ, maxZ);
             transform.position = new Vector3(clampedX, transform.position.y, clampedZ);
-            targetPosition = new Vector3(clampedX, targetPosition.y, clampedZ);
+            
+            targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
+            targetPosition.z = Mathf.Clamp(targetPosition.z, minZ, maxZ);
         }
     }
 
-    void HandleMouseInput()
+    void HandleInput()
     {
-        if (mouse.leftButton.wasPressedThisFrame)
+        if (ETouch.Touch.activeTouches.Count > 0)
         {
-            lastTouchPosition = mouse.position.ReadValue();
-            isDragging = true;
-        }
-
-        if (mouse.leftButton.isPressed && isDragging)
-        {
-            Vector2 currentMousePos = mouse.position.ReadValue();
-            DragCamera(currentMousePos);
-        }
-
-        if (mouse.leftButton.wasReleasedThisFrame)
-        {
-            isDragging = false;
-        }
-
-        if (enableZoom)
-        {
-            float scrollDelta = mouse.scroll.ReadValue().y;
-            if (scrollDelta != 0)
+            if (ETouch.Touch.activeTouches.Count == 1)
             {
-                cam.orthographicSize -= scrollDelta * zoomSpeed * 10;
-                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, minZoom, maxZoom);
+                var touch = ETouch.Touch.activeTouches[0];
+                if (touch.phase == UnityEngine.InputSystem.TouchPhase.Began)
+                {
+                    lastInputPosition = touch.screenPosition;
+                    isDragging = true;
+                }
+                else if (touch.phase == UnityEngine.InputSystem.TouchPhase.Moved && isDragging)
+                {
+                    DragCamera(touch.screenPosition);
+                }
+                else if (touch.phase == UnityEngine.InputSystem.TouchPhase.Ended || touch.phase == UnityEngine.InputSystem.TouchPhase.Canceled)
+                {
+                    isDragging = false;
+                }
+            }
+            else if (ETouch.Touch.activeTouches.Count == 2 && enableZoom)
+            {
+                isDragging = false;
+                var t1 = ETouch.Touch.activeTouches[0];
+                var t2 = ETouch.Touch.activeTouches[1];
+
+                float prevDist = Vector2.Distance(t1.screenPosition - t1.delta, t2.screenPosition - t2.delta);
+                float currDist = Vector2.Distance(t1.screenPosition, t2.screenPosition);
+                float delta = currDist - prevDist;
+
+                ZoomCamera(delta);
             }
         }
-    }
-
-    void HandleTouchInput()
-    {
-        if (touch == null) return;
-
-        if (touch.touches.Count == 1)
+        else if (Mouse.current != null)
         {
-            UnityEngine.InputSystem.Controls.TouchControl touchControl = touch.touches[0];
-
-            if (touchControl.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began)
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                lastTouchPosition = touchControl.position.ReadValue();
+                lastInputPosition = Mouse.current.position.ReadValue();
                 isDragging = true;
             }
-            else if (touchControl.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved && isDragging)
+            else if (Mouse.current.leftButton.isPressed && isDragging)
             {
-                Vector2 currentTouchPos = touchControl.position.ReadValue();
-                DragCamera(currentTouchPos);
+                DragCamera(Mouse.current.position.ReadValue());
             }
-            else if (touchControl.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Ended ||
-                     touchControl.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Canceled)
+            else if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 isDragging = false;
             }
-        }
-        else if (touch.touches.Count == 2 && enableZoom)
-        {
-            var touch1 = touch.touches[0];
-            var touch2 = touch.touches[1];
 
-            Vector2 prevPos1 = touch1.position.ReadValue() - touch1.delta.ReadValue();
-            Vector2 prevPos2 = touch2.position.ReadValue() - touch2.delta.ReadValue();
-
-            float prevDistance = Vector2.Distance(prevPos1, prevPos2);
-            float currentDistance = Vector2.Distance(touch1.position.ReadValue(), touch2.position.ReadValue());
-
-            float delta = currentDistance - prevDistance;
-
-            cam.orthographicSize -= delta * zoomSpeed;
-            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, minZoom, maxZoom);
+            if (enableZoom)
+            {
+                float scroll = Mouse.current.scroll.ReadValue().y;
+                if (scroll != 0) ZoomCamera(scroll * 10f);
+            }
         }
     }
 
-    void DragCamera(Vector2 currentPosition)
+    void DragCamera(Vector2 currentScreenPos)
     {
-        Vector3 worldCurrent = cam.ScreenToWorldPoint(currentPosition);
-        Vector3 worldLast = cam.ScreenToWorldPoint(lastTouchPosition);
+        if (cam == null) return;
+        
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        Ray currentRay = cam.ScreenPointToRay(currentScreenPos);
+        Ray lastRay = cam.ScreenPointToRay(lastInputPosition);
 
-        Vector3 delta = worldLast - worldCurrent;
-        targetPosition += delta * dragSpeed;
-
-        lastTouchPosition = currentPosition;
+        if (groundPlane.Raycast(currentRay, out float dist1) && groundPlane.Raycast(lastRay, out float dist2))
+        {
+            Vector3 worldCurrent = currentRay.GetPoint(dist1);
+            Vector3 worldLast = lastRay.GetPoint(dist2);
+            Vector3 delta = worldLast - worldCurrent;
+            delta.y = 0;
+            targetPosition += delta;
+        }
+        
+        lastInputPosition = currentScreenPos;
     }
 
-    void OnDrawGizmosSelected()
+    void ZoomCamera(float delta)
     {
-        if (useBounds)
+        if (cam.orthographic)
         {
-            Gizmos.color = Color.yellow;
-            Vector3 center = new Vector3((minX + maxX) / 2, transform.position.y, (minZ + maxZ) / 2);
-            Vector3 size = new Vector3(maxX - minX, 1, maxZ - minZ);
-            Gizmos.DrawWireCube(center, size);
+            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - delta * zoomSpeed, minZoom, maxZoom);
+        }
+        else
+        {
+            targetPosition.y = Mathf.Clamp(targetPosition.y - delta * zoomSpeed * 10f, minZoom, maxZoom);
         }
     }
 }
