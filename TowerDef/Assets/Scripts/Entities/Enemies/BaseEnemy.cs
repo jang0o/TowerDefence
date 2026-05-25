@@ -6,7 +6,7 @@ public class BaseEnemy : BaseEntity
     public UnitStats stats;
 
     [Header("Attack Settings")]
-    public float attackRange = 0.5f; // Melee range
+    public float attackRange = 0.5f;
     public float attackCooldown = 1.5f;
 
     protected override void Die()
@@ -45,24 +45,18 @@ public class BaseEnemy : BaseEntity
 
     protected virtual void Update()
     {
-        // 1. Look for buildings to attack nearby (stops to break buildings on the way)
         CheckForBuildings();
-
-        // 2. If we have a target (building), attack it and don't move
         if (currentTarget != null)
         {
             AttackTarget();
             return;
         }
 
-        // 3. Otherwise move towards the next waypoint
         Move();
     }
 
     protected void CheckForBuildings()
     {
-        // Use attackRange to see if we can hit something right now
-        // We could use a slightly larger range for 'detection' if we wanted them to deviate from path
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange + 0.1f);
         foreach (var hit in hitColliders)
         {
@@ -101,7 +95,6 @@ public class BaseEnemy : BaseEntity
         Vector3 targetPos = new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z);
         Vector3 direction = targetPos - transform.position;
         
-        // If we reached the waypoint
         if (direction.magnitude < 0.3f)
         {
             GetNextPoint();
@@ -130,7 +123,6 @@ public class BaseEnemy : BaseEntity
 
     protected void ReachEnd()
     {
-        // Instead of disappearing, find the 14k+7k building and set it as target
         GameObject mainBuilding = GameObject.Find("14k+7k");
         if (mainBuilding != null)
         {
@@ -138,7 +130,7 @@ public class BaseEnemy : BaseEntity
             if (entity != null && entity.health > 0)
             {
                 currentTarget = entity;
-                targetPoint = null; // Stop moving towards points
+                targetPoint = null;
                 Debug.Log(gameObject.name + " reached the final target and is attacking!");
                 return;
             }
