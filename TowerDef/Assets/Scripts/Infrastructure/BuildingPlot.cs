@@ -17,7 +17,6 @@ public class BuildingPlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
         rend = GetComponent<Renderer>();
         propBlock = new MaterialPropertyBlock();
         
-        // Initialize color
         SetColor(startColor);
     }
 
@@ -66,17 +65,13 @@ public class BuildingPlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
             return;
         }
 
-        // Get cost from TowerAI's stats
         TowerAI ai = towerPrefab.GetComponent<TowerAI>();
         int cost = (ai != null && ai.towerStats != null) ? ai.towerStats.cost : 100;
 
         if (CurrencyManager.TryPurchase(cost))
         {
-            // Instantiate tower at plot position
             currentTower = Instantiate(towerPrefab, transform.position, Quaternion.identity);
             
-            // Hide the plot marker once a tower is built
-            // Or just hide the visual part if we have children
             Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
             foreach(var r in allRenderers) r.enabled = false;
                 
