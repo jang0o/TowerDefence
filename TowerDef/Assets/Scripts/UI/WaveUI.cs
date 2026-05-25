@@ -56,7 +56,6 @@ public class WaveUI : MonoBehaviour
                 if (b != null)
                 {
                     string displayName = GetRussianName(b.gameObject.name);
-                    // Set current HP color to blue as requested
                     sb.AppendLine($"{displayName}: <color=blue>{Mathf.CeilToInt(b.health)}</color>");
                     }
                     }
