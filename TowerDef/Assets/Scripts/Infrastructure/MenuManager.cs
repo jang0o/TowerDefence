@@ -16,7 +16,6 @@ public class MenuManager : MonoBehaviour
 
     public void PlayGame()
     {
-        // Loading the main game scene
         SceneManager.LoadScene("Project");
     }
 
@@ -37,7 +36,6 @@ public class MenuManager : MonoBehaviour
         if (inGameMenuPanel != null)
         {
             inGameMenuPanel.SetActive(!inGameMenuPanel.activeSelf);
-            // Pause game if menu is open
             Time.timeScale = inGameMenuPanel.activeSelf ? 0f : 1f;
         }
     }
