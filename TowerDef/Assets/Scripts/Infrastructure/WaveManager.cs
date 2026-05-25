@@ -7,7 +7,7 @@ public class WaveManager : MonoBehaviour
     public static WaveManager Instance;
 
     [Header("Wave Settings")]
-    public float waveDuration = 300f; // 5 minutes
+    public float waveDuration = 300f;
     public int currentWave = 0;
     public float timer;
 
@@ -19,7 +19,7 @@ public class WaveManager : MonoBehaviour
 
     [Header("Spawning")]
     public Waypoints mainPath;
-    public Waypoints path2; // Added Path2 support
+    public Waypoints path2;
     public Waypoints trainPath;
     public Waypoints trainUnloadPath;
 
@@ -81,7 +81,6 @@ public class WaveManager : MonoBehaviour
         {
             if (politehSpawned < politehCount && elapsed >= politehSpawned * politehInterval)
             {
-                // Alternate between mainPath and path2
                 Waypoints selectedPath = (useAlternatePath && path2 != null) ? path2 : mainPath;
                 SpawnEnemy(politehPrefab, selectedPath);
                 
