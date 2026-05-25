@@ -17,7 +17,6 @@ public class SGEYEnemy : BaseEnemy
         {
             currentTarget.TakeDamage(stats.damage);
             
-            // Steal money (reduce player money)
             CurrencyManager.SubtractMoney(moneyStealAmount);
             
             lastAttackTime = Time.time;
