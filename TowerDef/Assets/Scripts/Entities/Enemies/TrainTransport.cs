@@ -3,10 +3,10 @@ using System.Collections;
 
 public class TrainTransport : MonoBehaviour
 {
-    public UnitStats trainStats;    // �������� ������ ������
-    public GameObject enemyPrefab;  // ��� ������ �� ������
-    public int enemyCount = 5;      // ������� ������ ������
-    public float spawnDelay = 0.3f; // �������� �������
+    public UnitStats trainStats;
+    public GameObject enemyPrefab;
+    public int enemyCount = 5;
+    public float spawnDelay = 0.3f;
 
     private Waypoints targetPath;
     private Transform targetPoint;
@@ -24,7 +24,6 @@ public class TrainTransport : MonoBehaviour
     {
         if (targetPoint == null) return;
 
-        // �������� ������
         Vector3 direction = targetPoint.position - transform.position;
         transform.Translate(direction.normalized * trainStats.speed * Time.deltaTime, Space.World);
 
@@ -38,7 +37,7 @@ public class TrainTransport : MonoBehaviour
     {
         if (pointIndex >= targetPath.points.Length - 1)
         {
-            StartCoroutine(UnloadEnemies()); // ��������! �������.
+            StartCoroutine(UnloadEnemies());
             targetPoint = null;
             return;
         }
@@ -52,10 +51,10 @@ public class TrainTransport : MonoBehaviour
         for (int i = 0; i < enemyCount; i++)
         {
             GameObject enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
-            enemy.GetComponent<BaseEnemy>().SetupPath(targetPath); // ����� ���� ���� �� ����
+            enemy.GetComponent<BaseEnemy>().SetupPath(targetPath);
             yield return new WaitForSeconds(spawnDelay);
         }
 
-        Destroy(gameObject); // ����� �������� ����� �������
+        Destroy(gameObject);
     }
 }
