@@ -14,7 +14,6 @@ public class BaseEntity : MonoBehaviour
 
     protected virtual void Die()
     {
-        // Логика смерти (деньги, эффекты)
         if (gameObject.CompareTag("Enemy"))
         {
             // Тут будет начисление валюты
