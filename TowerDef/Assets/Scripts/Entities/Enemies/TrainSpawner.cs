@@ -1,15 +1,14 @@
-using UnityEngine; // ��� ���� ������� � ���� �� �������!
+using UnityEngine;
 
 public class TrainSpawner : MonoBehaviour
 {
-    public GameObject trainPrefab; // ������ ������
-    public GameObject enemyInTrainPrefab; // ������ �����-������
+    public GameObject trainPrefab;
+    public GameObject enemyInTrainPrefab;
     public Waypoints pathToFollow;
     public float spawnRate = 20f;
 
     void Start()
     {
-        // ��������� ����� ������ ����� 2 ������� ����� ������, ��������� ������ spawnRate ������
         InvokeRepeating("SpawnTrain", 2f, spawnRate);
     }
 
@@ -23,8 +22,6 @@ public class TrainSpawner : MonoBehaviour
 
         GameObject train = Instantiate(trainPrefab, transform.position, Quaternion.identity);
 
-        // �����: ���� �� ������������ ������ ������ � "Train", 
-        // �� ������ TrainTransport �� Train � ������� ����:
         Train trainScript = train.GetComponent<Train>();
 
         if (trainScript != null)
