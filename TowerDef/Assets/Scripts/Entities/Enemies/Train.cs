@@ -9,11 +9,11 @@ public class Train : MonoBehaviour
 
     [Header("Enemies")]
     public GameObject enemyPrefab;
-    public int enemyCount = 3; // Unload 3 units as requested
+    public int enemyCount = 3;
     public float spawnDelay = 0.5f;
     public Waypoints enemyPath;
 
-    public int stopWaypointIndex = 3; // Default to Point_4 (index 3)
+    public int stopWaypointIndex = 3;
 
     private Waypoints targetPath;
     private Transform targetPoint;
