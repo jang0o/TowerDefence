@@ -3,7 +3,7 @@ using UnityEngine;
 public class TowerAI : MonoBehaviour
 {
     [Header("Staty korpusa")]
-    public UnitStats towerStats;    // Ssylka na nash novyy ScriptableObject
+    public UnitStats towerStats;
 
     [Header("Tehnicheskie ssylki")]
     public GameObject projectilePrefab;
@@ -14,7 +14,6 @@ public class TowerAI : MonoBehaviour
 
     void Update()
     {
-        // Teper' berem radius iz towerStats
         FindTarget();
 
         if (target == null) return;
@@ -22,7 +21,6 @@ public class TowerAI : MonoBehaviour
         if (fireCountdown <= 0f)
         {
             Shoot();
-            // Berem skorost' strel'by iz towerStats
             fireCountdown = 1f / towerStats.fireRate;
         }
         fireCountdown -= Time.deltaTime;
@@ -37,7 +35,6 @@ public class TowerAI : MonoBehaviour
         foreach (GameObject enemy in enemies)
         {
             float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-            // Proveryaem radius iz statov
             if (distanceToEnemy < shortestDistance && distanceToEnemy <= towerStats.range)
             {
                 shortestDistance = distanceToEnemy;
@@ -57,7 +54,6 @@ public class TowerAI : MonoBehaviour
         Bullet bullet = projGO.GetComponent<Bullet>();
         if (bullet != null)
         {
-            // Peredaem uron iz statov bashni v pulyu
             bullet.Seek(target);
             bullet.bulletDamage = towerStats.damage;
         }
